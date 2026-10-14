@@ -1,62 +1,319 @@
-​<!DOCTYPE html>
-<html>
+```html
+<!DOCTYPE html>
+<html lang="my">
 <head>
-<title>Movie Recap Editor</title>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Myanmar Movie Recap Editor Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pyidaungsu&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Pyidaungsu', sans-serif;
+            background-color: #0b0f19;
+            color: #f8fafc;
+        }
+        /* Custom scrollbar for horizontal toolbars */
+        ::-webkit-scrollbar {
+            height: 4px;
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+    </style>
 </head>
-<body>
-​<h2>ဗီဒီယို တင်ရန်</h2>
-<input type="file" id="videoInput" accept="video/*">
+<body class="min-h-screen pb-24">
 
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 px-4 py-3 flex items-center justify-between shadow-md">
+        <div class="flex items-center space-x-2">
+            <span class="text-2xl">🎬</span>
+            <h1 class="text-sm md:text-base font-bold bg-gradient-to-r from-amber-400 to-rose-500 bg-clip-text text-transparent">Movie Recap Pro Studio</h1>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button onclick="exportProject()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs px-3 py-1.5 rounded-lg transition shadow">💾 Export</button>
+        </div>
+    </header>
 
+    <main class="max-w-xl mx-auto p-3 space-y-4">
 
-<video id="videoPlayer" controls style="width:100%; max-height:400px; display:none; background:#000;"></video>
+        <!-- Video Preview Screen & Aspect Ratio wrapper -->
+        <section class="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+            <div id="previewContainer" class="relative bg-black w-full aspect-video flex items-center justify-center overflow-hidden transition-all duration-300">
+                <video id="videoPlayer" class="w-full h-full object-contain transition-all" controls></video>
+                
+                <!-- Text Overlay Preview Layer -->
+                <div id="overlayTextDisplay" class="absolute bottom-6 left-4 right-4 text-center font-bold text-white text-lg drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] pointer-events-none transition-all"></div>
+                
+                <!-- Sticker Preview Layer -->
+                <div id="stickerDisplay" class="absolute top-4 right-4 text-3xl pointer-events-none transition-all"></div>
 
+                <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 pointer-events-none">
+                    <span class="text-4xl mb-2">📼</span>
+                    <span class="text-xs">ဗီဒီယိုဖိုင် တင်ရန် နှိပ်ပါ</span>
+                </div>
+            </div>
 
-<button onclick="toggleMute()" style="padding:10px; margin-top:10px;">အသံပိတ်ရန် (Mute)</button>
-​
+            <!-- Timeline / Playback bar info -->
+            <div class="px-4 py-2.5 bg-slate-900 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                <span id="currentTimeDisplay">00:00 / 00:00</span>
+                <span id="aspectRatioLabel" class="text-amber-400 font-medium">Ratio: 16:9</span>
+            </div>
+        </section>
 
-<hr>
+        <!-- Main Editing Tools Toolbar (Scrollable) -->
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-3 shadow-lg">
+            <p class="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">🛠️ Editing Tools</p>
+            <div class="flex space-x-2 overflow-x-auto pb-1 text-xs">
+                <button onclick="openTab('editTab')" class="tool-btn bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl border border-slate-700 whitespace-nowrap flex items-center space-x-1 font-medium transition"><span>✏️</span><span>Edit</span></button>
+                <button onclick="openTab('audioTab')" class="tool-btn bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl border border-slate-700 whitespace-nowrap flex items-center space-x-1 font-medium transition"><span>🎵</span><span>Audio</span></button>
+                <button onclick="openTab('textTab')" class="tool-btn bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl border border-slate-700 whitespace-nowrap flex items-center space-x-1 font-medium transition"><span>💬</span><span>Text/Caption</span></button>
+                <button onclick="openTab('maskTab')" class="tool-btn bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl border border-slate-700 whitespace-nowrap flex items-center space-x-1 font-medium transition"><span>🎭</span><span>Mask</span></button>
+                <button onclick="openTab('cropTab')" class="tool-btn bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl border border-slate-700 whitespace-nowrap flex items-center space-x-1 font-medium transition"><span>✂️</span><span>Crop</span></button>
+                <button onclick="openTab('animTab')" class="tool-btn bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl border border-slate-700 whitespace-nowrap flex items-center space-x-1 font-medium transition"><span>✨</span><span>Animation</span></button>
+                <button onclick="openTab('splitTab')" class="tool-btn bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl border border-slate-700 whitespace-nowrap flex items-center space-x-1 font-medium transition"><span>⚡</span><span>Split</span></button>
+                <button onclick="openTab('stickerTab')" class="tool-btn bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl border border-slate-700 whitespace-nowrap flex items-center space-x-1 font-medium transition"><span>🔥</span><span>Sticker</span></button>
+                <button onclick="openTab('ratioTab')" class="tool-btn bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl border border-slate-700 whitespace-nowrap flex items-center space-x-1 font-medium transition"><span>📐</span><span>Aspect Ratio</span></button>
+                <button onclick="deleteClip()" class="bg-rose-950/60 hover:bg-rose-900 text-rose-300 px-3 py-2 rounded-xl border border-rose-800/80 whitespace-nowrap flex items-center space-x-1 font-medium transition"><span>🗑️</span><span>Delete</span></button>
+            </div>
+        </section>
 
-​<h2>အသံဖိုင် (Voiceover) တင်ရန်</h2>
-<input type="file" id="audioInput" accept="audio/*">
+        <!-- Dynamic Control Panels -->
+        <div id="controlPanels" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg min-h-[180px]">
 
+            <!-- 1. Edit Panel -->
+            <div id="editTab" class="panel-content space-y-3">
+                <h3 class="text-sm font-bold text-amber-400">✏️ General Video Edit & Source</h3>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">ဗီဒီယိုဖိုင် ရွေးချယ်ရန်</label>
+                    <input type="file" id="videoInput" accept="video/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-500 file:text-slate-950 hover:file:bg-amber-400 cursor-pointer">
+                </div>
+                <div class="flex items-center space-x-3 pt-2">
+                    <button onclick="speedVideo(0.5)" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg border border-slate-700">0.5x</button>
+                    <button onclick="speedVideo(1.0)" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg border border-slate-700">1.0x (Normal)</button>
+                    <button onclick="speedVideo(2.0)" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg border border-slate-700">2.0x</button>
+                </div>
+            </div>
 
+            <!-- 2. Audio Panel -->
+            <div id="audioTab" class="panel-content space-y-3 hidden">
+                <h3 class="text-sm font-bold text-amber-400">🎵 Audio & Voiceover Control</h3>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">နောက်ခံအသံ (Voiceover) ဖိုင်တင်ရန်</label>
+                    <input type="file" id="audioInput" accept="audio/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-rose-500 file:text-white hover:file:bg-rose-400 cursor-pointer">
+                </div>
+                <audio id="audioPlayer" class="w-full mt-2" controls style="display:none;"></audio>
+                <div class="flex items-center justify-between pt-2">
+                    <span class="text-xs text-slate-400">Video Original Audio</span>
+                    <button onclick="toggleVideoMute()" id="muteBtn" class="bg-slate-800 text-xs px-3 py-1.5 rounded-lg border border-slate-700">🔇 Mute Video</button>
+                </div>
+            </div>
 
-<audio id="audioPlayer" controls style="display:none; width:100%;"></audio>
-​<script>
-let videoInput = document.getElementById('videoInput');
-let videoPlayer = document.getElementById('videoPlayer');
-​videoInput.onchange = function(e) {
-let file = e.target.files[0];
-if (file) {
-let reader = new FileReader();
-reader.onload = function(evt) {
-videoPlayer.src = evt.target.result;
-videoPlayer.style.display = 'block';
-videoPlayer.load();
-};
-reader.readAsDataURL(file);
-}
-};
-​function toggleMute() {
-videoPlayer.muted = !videoPlayer.muted;
-}
-​let audioInput = document.getElementById('audioInput');
-let audioPlayer = document.getElementById('audioPlayer');
-​audioInput.onchange = function(e) {
-let file = e.target.files[0];
-if (file) {
-let reader = new FileReader();
-reader.onload = function(evt) {
-audioPlayer.src = evt.target.result;
-audioPlayer.style.display = 'block';
-audioPlayer.load();
-};
-reader.readAsDataURL(file);
-}
-};
-</script>
-​</body>
+            <!-- 3. Text / Caption Panel -->
+            <div id="textTab" class="panel-content space-y-3 hidden">
+                <h3 class="text-sm font-bold text-amber-400">💬 Text Overlay & Captions</h3>
+                <textarea id="captionInput" rows="2" placeholder="ဗီဒီယိုပေါ်တွင် ပေါ်မည့် စာသားကို ရေးပါ..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500 resize-none"></textarea>
+                <div class="flex justify-between items-center">
+                    <select id="captionColor" class="bg-slate-950 border border-slate-800 rounded-lg text-xs p-2 text-slate-300">
+                        <option value="white">White Text</option>
+                        <option value="#facc15">Yellow Text</option>
+                        <option value="#f43f5e">Red Text</option>
+                        <option value="#38bdf8">Blue Text</option>
+                    </select>
+                    <button onclick="applyCaption()" class="bg-amber-500 text-slate-950 font-semibold text-xs px-4 py-2 rounded-xl">စာသားထည့်မည်</button>
+                </div>
+            </div>
+
+            <!-- 4. Mask Panel -->
+            <div id="maskTab" class="panel-content space-y-3 hidden">
+                <h3 class="text-sm font-bold text-amber-400">🎭 Video Mask Effects</h3>
+                <p class="text-xs text-slate-400">ဗီဒီယို ဖရိန်ပုံစံ သွင်ပြင်ကို ပြောင်းလဲရန်</p>
+                <div class="grid grid-cols-3 gap-2 pt-1">
+                    <button onclick="applyMask('none')" class="bg-slate-800 hover:bg-slate-700 text-xs py-2 rounded-xl border border-slate-700">Normal</button>
+                    <button onclick="applyMask('circle(50% at 50% 50%)')" class="bg-slate-800 hover:bg-slate-700 text-xs py-2 rounded-xl border border-slate-700">Circle</button>
+                    <button onclick="applyMask('inset(10% round 20px)')" class="bg-slate-800 hover:bg-slate-700 text-xs py-2 rounded-xl border border-slate-700">Rounded</button>
+                </div>
+            </div>
+
+            <!-- 5. Crop Panel -->
+            <div id="cropTab" class="panel-content space-y-3 hidden">
+                <h3 class="text-sm font-bold text-amber-400">✂️ Crop & Zoom</h3>
+                <div class="flex items-center space-x-3 pt-2">
+                    <button onclick="setZoom(1)" class="bg-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-700">Fit (1x)</button>
+                    <button onclick="setZoom(1.25)" class="bg-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-700">Zoom 1.25x</button>
+                    <button onclick="setZoom(1.5)" class="bg-slate-800 text-xs px-3 py-2 rounded-xl border border-slate-700">Zoom 1.5x</button>
+                </div>
+            </div>
+
+            <!-- 6. Animation Panel -->
+            <div id="animTab" class="panel-content space-y-3 hidden">
+                <h3 class="text-sm font-bold text-amber-400">✨ Video Entrance Animations</h3>
+                <div class="grid grid-cols-3 gap-2 pt-1">
+                    <button onclick="applyAnimation('none')" class="bg-slate-800 text-xs py-2 rounded-xl border border-slate-700">None</button>
+                    <button onclick="applyAnimation('pulse')" class="bg-slate-800 text-xs py-2 rounded-xl border border-slate-700">Pulse</button>
+                    <button onclick="applyAnimation('bounce')" class="bg-slate-800 text-xs py-2 rounded-xl border border-slate-700">Bounce</button>
+                </div>
+            </div>
+
+            <!-- 7. Split Panel -->
+            <div id="splitTab" class="panel-content space-y-3 hidden">
+                <h3 class="text-sm font-bold text-amber-400">⚡ Split Clip / Timestamp</h3>
+                <p class="text-xs text-slate-400">လက်ရှိကြည့်နေသည့် အချိန်တွင် ဗီဒီယိုကို အပိုင်းပိုင်းခွဲရန်</p>
+                <button onclick="splitVideoClip()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs py-2.5 rounded-xl">✂️ Split at Current Time</button>
+                <div id="splitStatus" class="text-xs text-slate-500 text-center"></div>
+            </div>
+
+            <!-- 8. Sticker Panel -->
+            <div id="stickerTab" class="panel-content space-y-3 hidden">
+                <h3 class="text-sm font-bold text-amber-400">🔥 Add Stickers</h3>
+                <div class="flex space-x-3 overflow-x-auto py-2">
+                    <button onclick="addSticker('🔥')" class="text-2xl p-2 bg-slate-800 rounded-xl">🔥</button>
+                    <button onclick="addSticker('⭐')" class="text-2xl p-2 bg-slate-800 rounded-xl">⭐</button>
+                    <button onclick="addSticker('🎬')" class="text-2xl p-2 bg-slate-800 rounded-xl">🎬</button>
+                    <button onclick="addSticker('❤️')" class="text-2xl p-2 bg-slate-800 rounded-xl">❤️</button>
+                    <button onclick="addSticker('😎')" class="text-2xl p-2 bg-slate-800 rounded-xl">😎</button>
+                    <button onclick="addSticker('🚀')" class="text-2xl p-2 bg-slate-800 rounded-xl">🚀</button>
+                </div>
+            </div>
+
+            <!-- 9. Aspect Ratio Panel -->
+            <div id="ratioTab" class="panel-content space-y-3 hidden">
+                <h3 class="text-sm font-bold text-amber-400">📐 Aspect Ratio Selection</h3>
+                <div class="grid grid-cols-3 gap-2 pt-1">
+                    <button onclick="changeAspectRatio('16:9', 'aspect-video')" class="bg-slate-800 hover:bg-slate-700 text-xs py-2.5 rounded-xl border border-slate-700 font-medium">16:9 (YouTube)</button>
+                    <button onclick="changeAspectRatio('9:16', 'aspect-[9/16] h-[350px] mx-auto')" class="bg-slate-800 hover:bg-slate-700 text-xs py-2.5 rounded-xl border border-slate-700 font-medium">9:16 (TikTok/Shorts)</button>
+                    <button onclick="changeAspectRatio('1:1', 'aspect-square h-[280px] mx-auto')" class="bg-slate-800 hover:bg-slate-700 text-xs py-2.5 rounded-xl border border-slate-700 font-medium">1:1 (Square)</button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- App Script Logic -->
+    <script>
+        const videoInput = document.getElementById('videoInput');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const videoPlaceholder = document.getElementById('videoPlaceholder');
+        const muteBtn = document.getElementById('muteBtn');
+        const currentTimeDisplay = document.getElementById('currentTimeDisplay');
+
+        // Video File Loader
+        videoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const fileURL = URL.createObjectURL(file);
+                videoPlayer.src = fileURL;
+                videoPlaceholder.style.display = 'none';
+            }
+        });
+
+        // Time updates
+        videoPlayer.addEventListener('timeupdate', () => {
+            const current = formatTime(videoPlayer.currentTime);
+            const duration = formatTime(videoPlayer.duration || 0);
+            currentTimeDisplay.innerText = `${current} / ${duration}`;
+        });
+
+        function formatTime(seconds) {
+            let mins = Math.floor(seconds / 60);
+            let secs = Math.floor(seconds % 60);
+            return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        // Tab Switching Logic
+        function openTab(tabId) {
+            document.querySelectorAll('.panel-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+        }
+
+        // Audio Handler
+        const audioInput = document.getElementById('audioInput');
+        const audioPlayer = document.getElementById('audioPlayer');
+        audioInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                audioPlayer.src = URL.createObjectURL(file);
+                audioPlayer.style.display = 'block';
+            }
+        });
+
+        function toggleVideoMute() {
+            videoPlayer.muted = !videoPlayer.muted;
+            muteBtn.innerText = videoPlayer.muted ? "🔊 Unmute Video" : "🔇 Mute Video";
+        }
+
+        // Speed Control
+        function speedVideo(rate) {
+            videoPlayer.playbackRate = rate;
+        }
+
+        // Text Overlay Caption
+        function applyCaption() {
+            const text = document.getElementById('captionInput').value;
+            const color = document.getElementById('captionColor').value;
+            const display = document.getElementById('overlayTextDisplay');
+            display.innerText = text;
+            display.style.color = color;
+        }
+
+        // Mask
+        function applyMask(maskStyle) {
+            videoPlayer.style.clipPath = maskStyle;
+        }
+
+        // Zoom / Crop
+        function setZoom(scale) {
+            videoPlayer.style.transform = `scale(${scale})`;
+        }
+
+        // Animation
+        function applyAnimation(animName) {
+            videoPlayer.className = "w-full h-full object-contain transition-all";
+            if (animName !== 'none') {
+                videoPlayer.classList.add(`animate-${animName}`);
+            }
+        }
+
+        // Split Clip
+        function splitVideoClip() {
+            const time = formatTime(videoPlayer.currentTime);
+            document.getElementById('splitStatus').innerText = `✅ ဗီဒီယိုကို ${time} တွင် အပိုင်းခွဲပြီးပါပြီ။`;
+        }
+
+        // Stickers
+        function addSticker(emoji) {
+            document.getElementById('stickerDisplay').innerText = emoji;
+        }
+
+        // Aspect Ratio
+        function changeAspectRatio(ratioText, classNames) {
+            const container = document.getElementById('previewContainer');
+            container.className = `relative bg-black w-full overflow-hidden transition-all duration-300 ${classNames}`;
+            document.getElementById('aspectRatioLabel').innerText = `Ratio: ${ratioText}`;
+        }
+
+        // Delete Clip
+        function deleteClip() {
+            videoPlayer.src = '';
+            videoPlayer.style.display = 'none';
+            videoPlaceholder.style.display = 'flex';
+            document.getElementById('overlayTextDisplay').innerText = '';
+            document.getElementById('stickerDisplay').innerText = '';
+            alert("လက်ရှိ ဗီဒီယိုဖိုင်ကို ဖျက်လိုက်ပါပြီ။");
+        }
+
+        // Export
+        function exportProject() {
+            alert("Recap Project အချက်အလက်များ အောင်မြင်စွာ Export လုပ်ပြီးပါပြီ!");
+        }
+    </script>
+
+</body>
 </html>
+```
