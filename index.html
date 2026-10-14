@@ -1,4 +1,4 @@
-```html
+
 <!DOCTYPE html>
 <html lang="my">
 <head>
@@ -13,7 +13,6 @@
             background-color: #0b0f19;
             color: #f8fafc;
         }
-        /* Custom scrollbar for horizontal toolbars */
         ::-webkit-scrollbar {
             height: 4px;
             width: 4px;
@@ -29,7 +28,6 @@
 </head>
 <body class="min-h-screen pb-24">
 
-    <!-- Header -->
     <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 px-4 py-3 flex items-center justify-between shadow-md">
         <div class="flex items-center space-x-2">
             <span class="text-2xl">🎬</span>
@@ -59,14 +57,12 @@
                 </div>
             </div>
 
-            <!-- Timeline / Playback bar info -->
             <div class="px-4 py-2.5 bg-slate-900 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
                 <span id="currentTimeDisplay">00:00 / 00:00</span>
                 <span id="aspectRatioLabel" class="text-amber-400 font-medium">Ratio: 16:9</span>
             </div>
         </section>
 
-        <!-- Main Editing Tools Toolbar (Scrollable) -->
         <section class="bg-slate-900 border border-slate-800 rounded-2xl p-3 shadow-lg">
             <p class="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">🛠️ Editing Tools</p>
             <div class="flex space-x-2 overflow-x-auto pb-1 text-xs">
@@ -83,7 +79,6 @@
             </div>
         </section>
 
-        <!-- Dynamic Control Panels -->
         <div id="controlPanels" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg min-h-[180px]">
 
             <!-- 1. Edit Panel -->
@@ -195,7 +190,6 @@
 
     </main>
 
-    <!-- App Script Logic -->
     <script>
         const videoInput = document.getElementById('videoInput');
         const videoPlayer = document.getElementById('videoPlayer');
@@ -305,15 +299,22 @@
             videoPlaceholder.style.display = 'flex';
             document.getElementById('overlayTextDisplay').innerText = '';
             document.getElementById('stickerDisplay').innerText = '';
-            alert("လက်ရှိ ဗီဒီယိုဖိုင်ကို ဖျက်လိုက်ပါပြီ။");
         }
 
         // Export
         function exportProject() {
-            alert("Recap Project အချက်အလက်များ အောင်မြင်စွာ Export လုပ်ပြီးပါပြီ!");
+            const msg = document.createElement('div');
+            msg.className = 'fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4';
+            msg.innerHTML = `
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full text-center space-y-4 shadow-2xl">
+                    <p class="text-amber-400 font-bold text-base">💾 Export Successful</p>
+                    <p class="text-xs text-slate-300">Recap Project အချက်အလက်များ အောင်မြင်စွာ Export လုပ်ပြီးပါပြီ!</p>
+                    <button onclick="this.parentElement.parentElement.remove()" class="w-full bg-amber-500 text-slate-950 font-semibold py-2 rounded-xl text-xs">ပိတ်မည်</button>
+                </div>
+            `;
+            document.body.appendChild(msg);
         }
     </script>
 
 </body>
 </html>
-```
