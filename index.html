@@ -31,9 +31,13 @@ let videoPlayer = document.getElementById('videoPlayer');
 ​videoInput.onchange = function(e) {
 let file = e.target.files[0];
 if (file) {
-videoPlayer.src = URL.createObjectURL(file);
+let reader = new FileReader();
+reader.onload = function(evt) {
+videoPlayer.src = evt.target.result;
 videoPlayer.style.display = 'block';
 videoPlayer.load();
+};
+reader.readAsDataURL(file);
 }
 };
 ​function toggleMute() {
@@ -44,9 +48,13 @@ let audioPlayer = document.getElementById('audioPlayer');
 ​audioInput.onchange = function(e) {
 let file = e.target.files[0];
 if (file) {
-audioPlayer.src = URL.createObjectURL(file);
+let reader = new FileReader();
+reader.onload = function(evt) {
+audioPlayer.src = evt.target.result;
 audioPlayer.style.display = 'block';
 audioPlayer.load();
+};
+reader.readAsDataURL(file);
 }
 };
 </script>
