@@ -1,0 +1,54 @@
+​<!DOCTYPE html>
+<html>
+<head>
+<title>Movie Recap Editor</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+​<h2>ဗီဒီယို တင်ရန်</h2>
+<input type="file" id="videoInput" accept="video/*">
+
+
+
+<video id="videoPlayer" controls style="width:100%; max-height:400px; display:none; background:#000;"></video>
+
+
+<button onclick="toggleMute()" style="padding:10px; margin-top:10px;">အသံပိတ်ရန် (Mute)</button>
+​
+
+<hr>
+
+​<h2>အသံဖိုင် (Voiceover) တင်ရန်</h2>
+<input type="file" id="audioInput" accept="audio/*">
+
+
+
+<audio id="audioPlayer" controls style="display:none; width:100%;"></audio>
+​<script>
+let videoInput = document.getElementById('videoInput');
+let videoPlayer = document.getElementById('videoPlayer');
+​videoInput.onchange = function(e) {
+let file = e.target.files[0];
+if (file) {
+videoPlayer.src = URL.createObjectURL(file);
+videoPlayer.style.display = 'block';
+videoPlayer.load();
+}
+};
+​function toggleMute() {
+videoPlayer.muted = !videoPlayer.muted;
+}
+​let audioInput = document.getElementById('audioInput');
+let audioPlayer = document.getElementById('audioPlayer');
+​audioInput.onchange = function(e) {
+let file = e.target.files[0];
+if (file) {
+audioPlayer.src = URL.createObjectURL(file);
+audioPlayer.style.display = 'block';
+audioPlayer.load();
+}
+};
+</script>
+​</body>
+</html>
